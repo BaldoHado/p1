@@ -12,12 +12,16 @@ public class p1 {
 	private static char[][] lines;
 	private static ArrayList<Coord> coordinates = new ArrayList<Coord>();
 	private static ArrayList<Coord> coords = new ArrayList<Coord>();
+	private static ArrayDeque<Coord> temp;
+	private static ArrayDeque<Coord> vals;
 	
 	public static void main(String[] args) {
 		
 		Scanner scanner;
 		File f = new File("adamMap.txt");
-		
+		temp = new ArrayDeque<Coord>();
+		vals = new ArrayDeque<Coord>();
+
 		try {
 			scanner = new Scanner(f);
 			coordinateBased(scanner);
@@ -91,13 +95,9 @@ public class p1 {
 	}
 	public static void findCakeStacks(int row, int col) {
 	
-		ArrayDeque<Coord> temp = new ArrayDeque<Coord>();
-		ArrayDeque<Coord> vals = new ArrayDeque<Coord>();
 		int curRow = row;
 		int curCol = col;
-		for (int i =0;i<coordinates.size();i++) {
-			System.out.println("" + coordinates.get(i).getVal() + " " + coordinates.get(i).getRow() + " " +coordinates.get(i).getCol());
-		}
+		
 		if (curRow > 0 && curCol > 0) {
 			if (lines[curRow+1][curCol] == ".".charAt(0)) {
 				temp.add(new Coord(curRow,curCol,lines[curRow][curCol]));
