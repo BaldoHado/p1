@@ -99,12 +99,12 @@ public class p1 {
 	
 		int curRow = c.getRow();
 		int curCol = c.getCol();
-		//System.out.println(c.getRow() + " " + c.getCol());
-		
-		if (curRow > 0 && curCol > 0 && curRow < lines.length && curCol < lines[0].length) {
-			if (c.getVal() == "C".charAt(0)) {
-				System.out.println("C at");
-			}
+		System.out.println(c.getRow() + " " + c.getCol());
+		if (lines[curRow][curCol] == "C".charAt(0)) {
+			System.out.println("C at " + c.getRow() + " " + c.getCol());
+		}
+		if (curRow > 0 && curCol > 0 && curRow < lines.length-1 && curCol < lines[0].length-1) {
+			
 			if ((lines[curRow+1][curCol] == ".".charAt(0) || lines[curRow+1][curCol] == "C".charAt(0))) {
 				if (existsAlready(curRow+1,curCol) == false) {
 					temp.add(new Coord(curRow,curCol,lines[curRow][curCol]));
@@ -148,6 +148,7 @@ public class p1 {
 	
 	public static boolean existsAlready(int row, int col) {
 		ArrayDeque<Coord> list = new ArrayDeque<Coord>();
+		ArrayDeque<Coord> list2 = new ArrayDeque<Coord>();
 		boolean found = false;
 		//System.out.println(temp.size());
 		while (temp.size() > 0 && found == false) {
@@ -159,13 +160,25 @@ public class p1 {
 			list.add(t);
 			//System.out.println("list" + list.size());
 		}
+		while(vals.size() > 0 && found == false) {
+			if (vals.peek().getRow() == row && vals.peek().getCol() == col && vals.peek().getVal() == lines[row][col]) {
+				found = true;
+			}
+			Coord t = vals.remove();
+			list2.add(t);
+		}
 		while (list.size() > 0) {
 			Coord c = list.remove();
 			//System.out.println("running2");
 			temp.add(c);
 		}
+		while (list2.size() > 0) {
+			Coord c = list2.remove();
+			//System.out.println("running2");
+			vals.add(c);
+		}
 	
-		System.out.println(found);
+		//System.out.println(found);
 		
 		
 		return found;
