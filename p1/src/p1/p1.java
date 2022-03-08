@@ -14,6 +14,13 @@ public class p1 {
 	private static ArrayList<Coord> coords = new ArrayList<Coord>();
 	private static ArrayDeque<Coord> temp;
 	private static ArrayDeque<Coord> vals;
+	private static Stack<Coord> tempSt;
+	private static Stack<Coord> valsSt;
+	private static int rows;
+	private static int cols;
+	private static int rooms;
+	private static Coord Cake;
+	private static int amtDoors;
 	
 	public static void main(String[] args) {
 		
@@ -33,9 +40,9 @@ public class p1 {
 	}
 	
 	public static void coordinateBased(Scanner scan) {		
-		int rows = scan.nextInt();
-		int cols = scan.nextInt();
-		int rooms = scan.nextInt();
+		rows = scan.nextInt();
+		cols = scan.nextInt();
+		rooms = scan.nextInt();
 		lines = new char[rows*rooms][cols];
 		int currRow = 0;
 		scan.nextLine();
@@ -64,7 +71,10 @@ public class p1 {
 		for (int i = 0; i < coordinates.size(); i++) {
 			if (coordinates.get(i).getVal() == "K".charAt(0)) {
 				Coord c = new Coord(coordinates.get(i).getRow(),coordinates.get(i).getCol(),coordinates.get(i).getVal());
-				findCakeStacks(c);
+				
+				findCakeQueue(c);
+				System.out.println(Cake.getRow() + " " + Cake.getCol());
+				
 				System.out.println("Kirby at " +  coordinates.get(i).getRow() + " " +coordinates.get(i).getCol());
 				
 			}
@@ -88,20 +98,101 @@ public class p1 {
 		for (int i = 0; i < coords.size(); i++) {
 			if (coords.get(i).getVal() == "K".charAt(0)) {
 				Coord c = new Coord(coords.get(i).getRow(),coords.get(i).getCol(),coords.get(i).getVal());
-				findCakeStacks(c);
+				findCakeQueue(c);
+				System.out.println(Cake.getRow());
 				System.out.println("Kirby at " +  coords.get(i).getRow() + " " +coords.get(i).getCol());
 				
 			}
 			
 		}
 	}
-	public static void findCakeStacks(Coord c) {
+	public static void findCakeQueue(Coord c) {
+		
+		int curRow = c.getRow();
+		int curCol = c.getCol();
+		System.out.println(c.getRow() + " " + c.getCol());
 	
+		if (lines[curRow][curCol] == "C".charAt(0)) {
+			System.out.println("C at " + c.getRow() + " " + c.getCol());
+			Cake = c;
+		}
+		if(lines[curRow][curCol] == "|".charAt(0)) {
+			System.out.println("Door detected");
+			int startRow = 0;
+			int startCol = 0;
+			amtDoors++;
+			for (int i = amtDoors*rows-1; i < (amtDoors+1)*rows-1; i++) {
+				for (int j = 0; j < cols;j++) {
+					if (lines[i][j] == "K".charAt(0)) {
+						System.out.println("I " + i + " J " + j);
+						startRow = i;
+						startCol = j;
+						break;
+					}
+				}
+				if (startRow != 0) {
+					break;
+				}
+			}
+			while (temp.size() > 0) {
+				temp.remove();
+			}
+			Coord d = new Coord(startRow,startCol,lines[startRow][startCol]);
+			temp.add(d);
+			findCakeQueue(d);
+		}
+		if (curRow > (amtDoors*rows-1) && curCol > 0 && curRow < ((amtDoors+1)*rows-1) && curCol < lines[0].length-1 && lines[curRow][curCol] != "C".charAt(0) && lines[curRow][curCol] != "|".charAt(0)) {
+	
+			if ((lines[curRow+1][curCol] == ".".charAt(0) || lines[curRow+1][curCol] == "C".charAt(0) || lines[curRow+1][curCol] == "|".charAt(0))) {
+				if (existsAlready(curRow+1,curCol) == false) {
+					temp.add(new Coord(curRow+1,curCol,lines[curRow][curCol]));
+					//System.out.println("add 1 ");
+				}
+				
+			}
+			if ((lines[curRow][curCol+1] == ".".charAt(0) || lines[curRow][curCol+1] == "C".charAt(0) || lines[curRow][curCol+1] == "|".charAt(0)) ) {
+				if ( existsAlready(curRow,curCol+1) == false) {
+					temp.add(new Coord(curRow,curCol+1,lines[curRow][curCol+1]));
+					//System.out.println("add 2 ");
+				}
+				
+			}
+			if ((lines[curRow-1][curCol] == ".".charAt(0) || lines[curRow-1][curCol] == "C".charAt(0) || lines[curRow-1][curCol] == "|".charAt(0))  ) { 
+				if ( existsAlready(curRow-1,curCol) == false) {
+					temp.add(new Coord(curRow-1,curCol,lines[curRow-1][curCol]));
+					//System.out.println("add 3 ");
+				}
+				
+			}
+			if ((lines[curRow][curCol-1] == ".".charAt(0) || lines[curRow][curCol-1] == "C".charAt(0) || lines[curRow][curCol-1] == "|".charAt(0)) ) {
+				if (existsAlready(curRow,curCol-1) == false) {
+					temp.add(new Coord(curRow,curCol-1,lines[curRow][curCol-1]));
+					//System.out.println("add 4 ");
+				}
+				
+			}
+			while (temp.size() > 0) {
+				Coord t = temp.remove();
+				vals.add(t);
+				findCakeQueue(t);
+				//System.out.println(temp.size());
+				//System.out.println(" " + vals.size());
+			}
+		}
+		
+	}
+	/*public static void findCakeStacks(Coord c) {
+		
 		int curRow = c.getRow();
 		int curCol = c.getCol();
 		System.out.println(c.getRow() + " " + c.getCol());
 		if (lines[curRow][curCol] == "C".charAt(0)) {
 			System.out.println("C at " + c.getRow() + " " + c.getCol());
+			Cake = c;
+			
+		}
+		if(lines[curRow][curCol] == "|".charAt(0)) {
+			doorCoord = new Coord(curRow,curCol,lines[curRow][curCol]);
 		}
 		if (curRow > 0 && curCol > 0 && curRow < lines.length-1 && curCol < lines[0].length-1) {
 			
@@ -136,15 +227,13 @@ public class p1 {
 			while (temp.size() > 0) {
 				Coord t = temp.remove();
 				vals.add(t);
+				findCakeStacks(t);
 				//System.out.println(temp.size());
 				//System.out.println(" " + vals.size());
-				findCakeStacks(t);
-				
 			}
 		}
 		
-		
-	}
+	}*/
 	
 	public static boolean existsAlready(int row, int col) {
 		ArrayDeque<Coord> list = new ArrayDeque<Coord>();
