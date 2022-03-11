@@ -38,6 +38,7 @@ public class p1 {
 		
 		
 	}
+
 	
 	public static void coordinateBased(Scanner scan) {		
 		rows = scan.nextInt();
@@ -74,9 +75,10 @@ public class p1 {
 				
 				findCakeQueue(c);
 				System.out.println(Cake.getRow() + " " + Cake.getCol());
+				break;
+				//System.out.println("Kirby at " +  coordinates.get(i).getRow() + " " +coordinates.get(i).getCol());
 				
-				System.out.println("Kirby at " +  coordinates.get(i).getRow() + " " +coordinates.get(i).getCol());
-				
+				//System.out.println("T SIZE = " + temp.size());
 			}
 			
 		}
@@ -101,11 +103,15 @@ public class p1 {
 				findCakeQueue(c);
 				System.out.println(Cake.getRow());
 				System.out.println("Kirby at " +  coords.get(i).getRow() + " " +coords.get(i).getCol());
-				
+				System.out.println("T SIZE = " + temp.size());
 			}
-			
 		}
 	}
+	
+	public static void makePath() { 
+		
+	}
+	
 	public static void findCakeQueue(Coord c) {
 		
 		int curRow = c.getRow();
@@ -115,8 +121,16 @@ public class p1 {
 		if (lines[curRow][curCol] == "C".charAt(0)) {
 			System.out.println("C at " + c.getRow() + " " + c.getCol());
 			Cake = c;
+			vals.add(c);
+			System.out.println(vals.peek().getRow());
+			while(temp.size()>0) {
+				temp.remove();
+			}
+			System.out.println("VALS SIZE: " + vals.size() + " TEMP SIZE: " + temp.size());
+
 		}
 		if(lines[curRow][curCol] == "|".charAt(0)) {
+			vals.add(c);
 			System.out.println("Door detected");
 			int startRow = 0;
 			int startCol = 0;
@@ -235,6 +249,28 @@ public class p1 {
 		
 	}*/
 	
+	public static Coord sideBySide(Coord c) {
+		int tRow = c.getRow();
+		int tCol = c.getCol();
+		ArrayDeque<Coord> tList = new ArrayDeque<Coord>();
+		Coord low;
+		boolean found = false;
+		
+		while (vals.size() > 0 && found == false) {
+			if ((Math.abs(vals.peek().getRow() - tRow) == 1 && vals.peek().getCol() - tCol == 0) || Math.abs(vals.peek().getCol()-tCol) == 1 && vals.peek().getRow()- tRow == 0) {
+				low = new Coord(vals.peek().getRow(),vals.peek().getCol(),vals.peek().getVal());
+				
+			} else {
+				Coord t = vals.remove();
+				tList.add(t);
+			}
+		}
+		
+		
+		
+	}
+	
+
 	public static boolean existsAlready(int row, int col) {
 		ArrayDeque<Coord> list = new ArrayDeque<Coord>();
 		ArrayDeque<Coord> list2 = new ArrayDeque<Coord>();
