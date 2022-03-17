@@ -15,6 +15,7 @@ public class p1 {
 	private static ArrayDeque<Coord> temp;
 	private static ArrayDeque<Coord> vals;
 	private static ArrayDeque<Coord> path;
+	private static ArrayList<Coord> optPath;
 	private static ArrayList<Coord> doors;
 	private static ArrayList<Coord> kirbyLoc; 
 	private static Stack<Coord> tempSt;
@@ -26,6 +27,7 @@ public class p1 {
 	private static int tDoor;
 	private static Coord Cake;
 	private static int amtDoors;
+	private static boolean pathFin; 
 	
 	public static void main(String[] args) {
 		
@@ -36,7 +38,10 @@ public class p1 {
 		path = new ArrayDeque<Coord>();
 		doors = new ArrayList<Coord>();
 		kirbyLoc = new ArrayList<Coord>();
+		optPath = new ArrayList<Coord>();
+		pathFin = false;
 		tDoor = 0;
+		
 
 		try {
 			scanner = new Scanner(f);
@@ -121,11 +126,14 @@ public class p1 {
 	
 	public static void makePath(Coord curr, Coord c) { //if multiple rooms, look for door first, then last floor look for cake
 		System.out.println("tRooms: " + tRooms + " rooms: " + rooms);
-		if (tRooms == rooms-1) {
+		if (pathFin == false) { 
+			if (tRooms == rooms-1) {
 			if (vals.peek().getVal() == "C".charAt(0)) {
-				System.out.println("FOUND cAKE BRO!" );
+				optPath.add(new Coord(vals.peek().getRow(),vals.peek().getCol(),vals.peek().getVal()));
+				pathFin = true;
 			} else if ((Math.abs(c.getRow()-Cake.getRow()) < Math.abs(curr.getRow()-Cake.getRow())) ||(Math.abs(c.getCol()-Cake.getCol()) < Math.abs(curr.getCol()-Cake.getCol()))) {
 				path.add(c);
+				optPath.add(c);
 				System.out.println(" WALKING TO KIRBS " + c.getRow() + " " + c.getCol());
 				if (vals.size() >= 1) {
 					//System.out.println(vals.remove().getRow());
@@ -146,8 +154,9 @@ public class p1 {
 			//System.out.println(Integer.valueOf(vals.peek().getRow()) == Integer.valueOf(doors.get(tRooms).getRow()) && Integer.valueOf(vals.peek().getRow()) == Integer.valueOf(doors.get(tRooms).getCol()));
 			if (vals.peek().getVal() == "|".charAt(0)) {				
 				System.out.println("YO DOOR" + " " + vals.peek().getRow() + " " + vals.peek().getCol() +" "+  vals.peek().getVal());
-				System.out.println("Starting kirby at " + kirbyLoc.get(tRooms).getRow() + " " + kirbyLoc.get(tRooms).getCol());
-				System.out.println(vals.size() + "Kib size " + kirbyLoc.size());
+				//System.out.println("Starting kirby at " + kirbyLoc.get(tRooms).getRow() + " " + kirbyLoc.get(tRooms).getCol());
+				//System.out.println(vals.size() + "Kib size " + kirbyLoc.size());
+				optPath.add(new Coord(vals.peek().getRow(),vals.peek().getCol(),vals.peek().getVal()));
 				vals.remove();
 				tRooms++;
 				makePath(kirbyLoc.get(tRooms-1),vals.remove());
@@ -158,6 +167,7 @@ public class p1 {
 						//System.out.println(vals.remove().getRow());
 						System.out.println("MAKING PATH");
 						System.out.println(vals.peek().getRow() + " " + vals.peek().getCol() +" "+  vals.peek().getVal());
+						optPath.add(c);
 						makePath(c,vals.remove());	
 						//System.out.println("Vals: " + vals.size());
 					}
@@ -169,6 +179,8 @@ public class p1 {
 				}
 			}
 		}
+		}
+		
 		
 	}
 	
