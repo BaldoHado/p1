@@ -42,6 +42,8 @@ public class p1 {
 		kirbyLoc = new ArrayList<Coord>();
 		optPath = new ArrayList<Coord>();
 		reTest = new ArrayList<Coord>();
+		tempSt = new Stack<Coord>();
+		valsSt = new Stack<Coord>();
 		tDoor = 0;
 		
 
@@ -139,7 +141,7 @@ public class p1 {
 				Coord c = new Coord(coordinates.get(i).getRow(),coordinates.get(i).getCol(),coordinates.get(i).getVal());
 				
 				findCakeStacks(c);
-				makePath(c,vals.remove());
+				//makePath(c,valsSt.pop());
 				System.out.println("OPT PATH " + optPath.size());
 				for (int k = 0 ; k < optPath.size(); k++) {
 					System.out.println(optPath.get(k).getVal() + " " + optPath.get(k).getRow() + " " + optPath.get(k).getCol());
@@ -312,7 +314,8 @@ public class p1 {
 	public static void findCakeStacks(Coord c) {
 		int curRow = c.getRow();
 		int curCol = c.getCol();
-		System.out.println(c.getRow() + " " + c.getCol());
+		System.out.println("Testing " + c.getRow() + " " + c.getCol());
+	
 		
 		if (lines[curRow][curCol] == "C".charAt(0)) {
 			System.out.println("C at " + c.getRow() + " " + c.getCol() + " " + c.getVal());
@@ -355,40 +358,40 @@ public class p1 {
 			tempSt.add(d);
 			findCakeStacks(d);
 		}
-		if (curRow > (amtDoors*rows-1) && curCol > 0 && curRow < ((amtDoors+1)*rows-1) && curCol < lines[0].length-1 && lines[curRow][curCol] != "C".charAt(0) && lines[curRow][curCol] != "|".charAt(0)) {
+		if (curRow > (amtDoors*rows-1) && curRow > 0 && curCol > 0 && curRow < ((amtDoors+1)*rows-1) && curCol < lines[0].length-1 && lines[curRow][curCol] != "C".charAt(0) && lines[curRow][curCol] != "|".charAt(0)) {
 	
 			if ((lines[curRow+1][curCol] == ".".charAt(0) || lines[curRow+1][curCol] == "C".charAt(0) || lines[curRow+1][curCol] == "|".charAt(0))) {
 				if (existsAlreadyStack(curRow+1,curCol) == false) {
 					tempSt.add(new Coord(curRow+1,curCol,lines[curRow][curCol]));
-					//System.out.println("add 1 ");
+					System.out.println("add 1 ");
 				}
 				
 			}
 			if ((lines[curRow][curCol+1] == ".".charAt(0) || lines[curRow][curCol+1] == "C".charAt(0) || lines[curRow][curCol+1] == "|".charAt(0)) ) {
 				if (existsAlreadyStack(curRow,curCol+1) == false) {
 					tempSt.add(new Coord(curRow,curCol+1,lines[curRow][curCol+1]));
-					//System.out.println("add 2 ");
+					System.out.println("add 2 ");
 				}
 				
 			}
 			if ((lines[curRow-1][curCol] == ".".charAt(0) || lines[curRow-1][curCol] == "C".charAt(0) || lines[curRow-1][curCol] == "|".charAt(0))  ) { 
 				if (existsAlreadyStack(curRow-1,curCol) == false) {
 					tempSt.add(new Coord(curRow-1,curCol,lines[curRow-1][curCol]));
-					//System.out.println("add 3 ");
+					System.out.println("add 3 ");
 				}
 				
 			}
 			if ((lines[curRow][curCol-1] == ".".charAt(0) || lines[curRow][curCol-1] == "C".charAt(0) || lines[curRow][curCol-1] == "|".charAt(0)) ) {
 				if (existsAlreadyStack(curRow,curCol-1) == false) {
 					tempSt.add(new Coord(curRow,curCol-1,lines[curRow][curCol-1]));
-					//System.out.println("add 4 ");
+					System.out.println("add 4 ");
 				}
 				
 			}
 			while (tempSt.size() > 0) {
 				Coord t = tempSt.pop();
 				valsSt.push(t);
-				findCakeQueue(t);
+				findCakeStacks(t);
 				//System.out.println(temp.size());
 				//System.out.println(" " + vals.size());
 			}
@@ -447,40 +450,19 @@ public class p1 {
 	}
 	
 	public static boolean existsAlreadyStack(int row, int col) {
-		Stack<Coord> list = new Stack<Coord>();
-		Stack<Coord> list2 = new Stack<Coord>();
 		boolean found = false;
-		//System.out.println(temp.size());
-		while (tempSt.size() > 0 && found == false) {
-			//System.out.println("running");
-			if (tempSt.peek().getRow() == row && tempSt.peek().getCol() == col && tempSt.peek().getVal() == lines[row][col]) {
-				found = true;
-			}
-			Coord t = tempSt.pop();
-			list.add(t);
-			//System.out.println("list" + list.size());
+		for(Coord obj : tempSt)
+		{
+		    if (obj.getRow() == row && obj.getCol() == col) {
+		    	found = true;
+		    }
 		}
-		while(valsSt.size() > 0 && found == false) {
-			if (valsSt.peek().getRow() == row && valsSt.peek().getCol() == col && valsSt.peek().getVal() == lines[row][col]) {
-				found = true;
-			}
-			Coord t = valsSt.pop();
-			list2.add(t);
+		for(Coord obj : valsSt)
+		{
+			if (obj.getRow() == row && obj.getCol() == col) {
+		    	found = true;
+		    }
 		}
-		while (list.size() > 0) {
-			Coord c = list.pop();
-			//System.out.println("running2");
-			tempSt.push(c);
-		}
-		while (list2.size() > 0) {
-			Coord c = list2.pop();
-			//System.out.println("running2");
-			valsSt.push(c);
-		}
-	
-		//System.out.println(found);
-		
-		
 		return found;
 		
 		
