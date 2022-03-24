@@ -16,10 +16,12 @@ public class p1 {
 	private static ArrayDeque<Coord> vals;
 	private static ArrayDeque<Coord> path;
 	private static ArrayList<Coord> optPath;
+	private static ArrayList<Coord> reTest;
 	private static ArrayList<Coord> doors;
 	private static ArrayList<Coord> kirbyLoc; 
 	private static Stack<Coord> tempSt;
 	private static Stack<Coord> valsSt;
+
 	private static int rows;
 	private static int cols;
 	private static int rooms;
@@ -39,13 +41,13 @@ public class p1 {
 		doors = new ArrayList<Coord>();
 		kirbyLoc = new ArrayList<Coord>();
 		optPath = new ArrayList<Coord>();
-		pathFin = false;
+		reTest = new ArrayList<Coord>();
 		tDoor = 0;
 		
 
 		try {
 			scanner = new Scanner(f);
-			coordinateBased(scanner);
+			coordinateBasedStacks(scanner);
 		}catch(Exception e) {
 			System.out.println(e);
 		}
@@ -89,6 +91,10 @@ public class p1 {
 				
 				findCakeQueue(c);
 				makePath(c,vals.remove());
+				System.out.println("OPT PATH " + optPath.size());
+				for (int k = 0 ; k < optPath.size(); k++) {
+					System.out.println(optPath.get(k).getVal() + " " + optPath.get(k).getRow() + " " + optPath.get(k).getCol());
+				}
 				System.out.println(Cake.getRow() + " " + Cake.getCol());
 				break;
 				//System.out.println("Kirby at " +  coordinates.get(i).getRow() + " " +coordinates.get(i).getCol());
@@ -99,43 +105,72 @@ public class p1 {
 		}
 	}
 	
-	public static void coordinateBasedArr(Scanner scan)  {
+	public static void coordinateBasedStacks(Scanner scan)  {
+		rows = scan.nextInt();
+		cols = scan.nextInt();
+		rooms = scan.nextInt();
+		lines = new char[rows*rooms][cols];
+		int currRow = 0;
 		scan.nextLine();
 		//take in cols and # of rows
 		while(scan.hasNextLine()) {
 			String line = scan.nextLine();
-	
-		
-			Coord t = new Coord(Integer.valueOf(String.valueOf(line.charAt(1))),Integer.valueOf(String.valueOf(line.charAt(2))),line.charAt(0));
-			//System.out.println(t.getRow());
-			coords.add(t);
 			
-		}
-			
-		for (int i = 0; i < coords.size(); i++) {
-			if (coords.get(i).getVal() == "K".charAt(0)) {
-				Coord c = new Coord(coords.get(i).getRow(),coords.get(i).getCol(),coords.get(i).getVal());
-				findCakeQueue(c);
-				System.out.println(Cake.getRow());
-				makePath(c,vals.remove());
-				System.out.println("Kirby at " +  coords.get(i).getRow() + " " +coords.get(i).getCol());
-				System.out.println("T SIZE = " + temp.size());
+			//use charAt to grab the elements of the map for a given row
+			for (int i = 0; i<rows;i++) {
+				lines[currRow][i] = line.charAt(i);
+				System.out.print(lines[currRow][i]);
 			}
+			currRow++;
+			System.out.println("");
+		}
+
+		for (int i = 0; i<lines.length;i++) {
+			for (int j = 0; j<lines[0].length;j++) {
+				
+				Coord t = new Coord(i,j,lines[i][j]);
+				coordinates.add(t);
+			
+			}
+		}
+		
+		for (int i = 0; i < coordinates.size(); i++) {
+			if (coordinates.get(i).getVal() == "K".charAt(0)) {
+				Coord c = new Coord(coordinates.get(i).getRow(),coordinates.get(i).getCol(),coordinates.get(i).getVal());
+				
+				findCakeStacks(c);
+				makePath(c,vals.remove());
+				System.out.println("OPT PATH " + optPath.size());
+				for (int k = 0 ; k < optPath.size(); k++) {
+					System.out.println(optPath.get(k).getVal() + " " + optPath.get(k).getRow() + " " + optPath.get(k).getCol());
+				}
+				System.out.println(Cake.getRow() + " " + Cake.getCol());
+				break;
+				//System.out.println("Kirby at " +  coordinates.get(i).getRow() + " " +coordinates.get(i).getCol());
+				
+				//System.out.println("T SIZE = " + temp.size());
+			}
+			
 		}
 	}
 	
 	public static void makePath(Coord curr, Coord c) { //if multiple rooms, look for door first, then last floor look for cake
 		System.out.println("tRooms: " + tRooms + " rooms: " + rooms);
+		System.out.println(vals.size());
+		System.out.println("Curr: " + curr.getRow()+ " " + curr.getCol() + " " + curr.getVal());
+		System.out.println("C : " + c.getRow()  + " " + c.getCol());
+		System.out.println("Peeking : " + vals.peek().getRow() + " " + vals.peek().getCol() + " " + vals.peek().getVal());
 		if (pathFin == false) { 
 			if (tRooms == rooms-1) {
-			if (vals.peek().getVal() == "C".charAt(0)) {
-				optPath.add(new Coord(vals.peek().getRow(),vals.peek().getCol(),vals.peek().getVal()));
+			if (c.getRow() == Cake.getRow() && c.getCol() == Cake.getCol() && c.getVal() == "C".charAt(0)) {
+				optPath.add(c);
+
 				pathFin = true;
-			} else if ((Math.abs(c.getRow()-Cake.getRow()) < Math.abs(curr.getRow()-Cake.getRow())) ||(Math.abs(c.getCol()-Cake.getCol()) < Math.abs(curr.getCol()-Cake.getCol()))) {
+			} else if ((Math.abs(c.getRow()-Cake.getRow()) < Math.abs(curr.getRow()-Cake.getRow())) ||(Math.abs(c.getCol()-Cake.getCol()) < Math.abs(curr.getCol()-Cake.getCol())) && sideBySide(curr, c) ) {
 				path.add(c);
 				optPath.add(c);
 				System.out.println(" WALKING TO KIRBS " + c.getRow() + " " + c.getCol());
-				if (vals.size() >= 1) {
+				if (vals.size() >= 2) {
 					//System.out.println(vals.remove().getRow());
 					makePath(c,vals.remove());
 					//System.out.println("Vals: " + vals.size());
@@ -144,7 +179,8 @@ public class p1 {
 			} else {
 				if (vals.size() >= 1) {
 					System.out.println("Fail");
-					//System.out.println("Vals: " + vals.size());
+					System.out.println("Vals: " + vals.size());
+					vals.add(c);
 					makePath(curr,vals.remove());
 				}
 			}
@@ -152,7 +188,7 @@ public class p1 {
 			//System.out.println(" DOOR PEEK " + doors.get(tRooms).getRow() + " " + doors.get(tRooms).getCol() + " " + doors.get(tRooms).getVal());
 			//System.out.println(" VAL PEEK " + vals.peek().getRow() + " " + vals.peek().getCol());
 			//System.out.println(Integer.valueOf(vals.peek().getRow()) == Integer.valueOf(doors.get(tRooms).getRow()) && Integer.valueOf(vals.peek().getRow()) == Integer.valueOf(doors.get(tRooms).getCol()));
-			if (vals.peek().getVal() == "|".charAt(0)) {				
+			if (vals.peek().getVal() == "|".charAt(0) && sideBySide(curr,c)) {				
 				System.out.println("YO DOOR" + " " + vals.peek().getRow() + " " + vals.peek().getCol() +" "+  vals.peek().getVal());
 				//System.out.println("Starting kirby at " + kirbyLoc.get(tRooms).getRow() + " " + kirbyLoc.get(tRooms).getCol());
 				//System.out.println(vals.size() + "Kib size " + kirbyLoc.size());
@@ -160,7 +196,7 @@ public class p1 {
 				vals.remove();
 				tRooms++;
 				makePath(kirbyLoc.get(tRooms-1),vals.remove());
-			}else if ((Math.abs(c.getRow()-doors.get(tRooms).getRow()) < Math.abs(curr.getRow()-doors.get(tRooms).getRow())) || (Math.abs(c.getCol()-doors.get(tRooms).getCol()) < Math.abs(curr.getCol()-doors.get(tRooms).getCol()))  ) {
+			}else if ((Math.abs(c.getRow()-doors.get(tRooms).getRow()) < Math.abs(curr.getRow()-doors.get(tRooms).getRow())) || (Math.abs(c.getCol()-doors.get(tRooms).getCol()) < Math.abs(curr.getCol()-doors.get(tRooms).getCol()) && sideBySide(curr,c) == true)  ) {
 					path.add(c);
 					System.out.println("DOOR:" + c.getRow() + " " + c.getCol());
 					if (vals.size() >= 1) {
@@ -173,8 +209,9 @@ public class p1 {
 					}
 			}else {
 				if (vals.size() >= 1) {
-					System.out.println("Fail");
-					//System.out.println("Vals: " + vals.size());
+					//System.out.println("Fail");
+					System.out.println("Vals: " + vals.size());
+					vals.add(c);
 					makePath(curr,vals.remove());
 				}
 			}
@@ -191,9 +228,10 @@ public class p1 {
 		System.out.println(c.getRow() + " " + c.getCol());
 		
 		if (lines[curRow][curCol] == "C".charAt(0)) {
-			System.out.println("C at " + c.getRow() + " " + c.getCol());
-			Cake = c;
-			vals.add(c);
+			System.out.println("C at " + c.getRow() + " " + c.getCol() + " " + c.getVal());
+			Coord l = new Coord(curRow,curCol,lines[curRow][curCol]);
+			Cake = l;
+			vals.add(l);
 			System.out.println(vals.peek().getRow());
 			while(temp.size()>0) {
 				temp.remove();
@@ -271,83 +309,99 @@ public class p1 {
 		}
 		
 	}
-	/*public static void findCakeStacks(Coord c) {
-		
+	public static void findCakeStacks(Coord c) {
 		int curRow = c.getRow();
 		int curCol = c.getCol();
 		System.out.println(c.getRow() + " " + c.getCol());
+		
 		if (lines[curRow][curCol] == "C".charAt(0)) {
-			System.out.println("C at " + c.getRow() + " " + c.getCol());
-			Cake = c;
-			
+			System.out.println("C at " + c.getRow() + " " + c.getCol() + " " + c.getVal());
+			Coord l = new Coord(curRow,curCol,lines[curRow][curCol]);
+			Cake = l;
+			valsSt.push(l);
+			while(tempSt.size()>0) {
+				tempSt.pop();
+			}
+			System.out.println("VALS SIZE: " + valsSt.size() + " TEMP SIZE: " + tempSt.size());
+
 		}
 		if(lines[curRow][curCol] == "|".charAt(0)) {
-			doorCoord = new Coord(curRow,curCol,lines[curRow][curCol]);
-		}
-		if (curRow > 0 && curCol > 0 && curRow < lines.length-1 && curCol < lines[0].length-1) {
+			System.out.println(valsSt.size() + " SiZE");
+			valsSt.push(new Coord(curRow,curCol,lines[curRow][curCol]));
+			doors.add(new Coord(curRow,curCol,lines[curRow][curCol]));
+			System.out.println("Door detected" + " DOOR SIZE: " + doors.size() + " door row" + c.getRow() + " " + c.getCol());
 			
-			if ((lines[curRow+1][curCol] == ".".charAt(0) || lines[curRow+1][curCol] == "C".charAt(0))) {
-				if (existsAlready(curRow+1,curCol) == false) {
-					temp.add(new Coord(curRow,curCol,lines[curRow][curCol]));
+			int startRow = 0;
+			int startCol = 0;
+			amtDoors++;
+			for (int i = amtDoors*rows-1; i < (amtDoors+1)*rows-1; i++) {
+				for (int j = 0; j < cols;j++) {
+					if (lines[i][j] == "K".charAt(0)) {
+						kirbyLoc.add(new Coord(i,j,lines[i][j]));
+						System.out.println("I " + i + " J " + j);
+						startRow = i;
+						startCol = j;
+						break;
+					}
+				}
+				if (startRow != 0) {
+					break;
+				}
+			}
+			while (tempSt.size() > 0) {
+				tempSt.pop();
+			}
+			Coord d = new Coord(startRow,startCol,lines[startRow][startCol]);
+			tempSt.add(d);
+			findCakeStacks(d);
+		}
+		if (curRow > (amtDoors*rows-1) && curCol > 0 && curRow < ((amtDoors+1)*rows-1) && curCol < lines[0].length-1 && lines[curRow][curCol] != "C".charAt(0) && lines[curRow][curCol] != "|".charAt(0)) {
+	
+			if ((lines[curRow+1][curCol] == ".".charAt(0) || lines[curRow+1][curCol] == "C".charAt(0) || lines[curRow+1][curCol] == "|".charAt(0))) {
+				if (existsAlreadyStack(curRow+1,curCol) == false) {
+					tempSt.add(new Coord(curRow+1,curCol,lines[curRow][curCol]));
 					//System.out.println("add 1 ");
 				}
 				
 			}
-			if ((lines[curRow][curCol+1] == ".".charAt(0) || lines[curRow][curCol+1] == "C".charAt(0)) ) {
-				if ( existsAlready(curRow,curCol+1) == false) {
-					temp.add(new Coord(curRow,curCol+1,lines[curRow][curCol+1]));
+			if ((lines[curRow][curCol+1] == ".".charAt(0) || lines[curRow][curCol+1] == "C".charAt(0) || lines[curRow][curCol+1] == "|".charAt(0)) ) {
+				if (existsAlreadyStack(curRow,curCol+1) == false) {
+					tempSt.add(new Coord(curRow,curCol+1,lines[curRow][curCol+1]));
 					//System.out.println("add 2 ");
 				}
 				
 			}
-			if ((lines[curRow-1][curCol] == ".".charAt(0) || lines[curRow-1][curCol] == "C".charAt(0)) ) { 
-				if ( existsAlready(curRow-1,curCol) == false) {
-					temp.add(new Coord(curRow-1,curCol,lines[curRow-1][curCol]));
+			if ((lines[curRow-1][curCol] == ".".charAt(0) || lines[curRow-1][curCol] == "C".charAt(0) || lines[curRow-1][curCol] == "|".charAt(0))  ) { 
+				if (existsAlreadyStack(curRow-1,curCol) == false) {
+					tempSt.add(new Coord(curRow-1,curCol,lines[curRow-1][curCol]));
 					//System.out.println("add 3 ");
 				}
 				
 			}
-			if ((lines[curRow][curCol-1] == ".".charAt(0) || lines[curRow][curCol-1] == "C".charAt(0)) ) {
-				if (existsAlready(curRow,curCol-1) == false) {
-					temp.add(new Coord(curRow,curCol-1,lines[curRow][curCol-1]));
+			if ((lines[curRow][curCol-1] == ".".charAt(0) || lines[curRow][curCol-1] == "C".charAt(0) || lines[curRow][curCol-1] == "|".charAt(0)) ) {
+				if (existsAlreadyStack(curRow,curCol-1) == false) {
+					tempSt.add(new Coord(curRow,curCol-1,lines[curRow][curCol-1]));
 					//System.out.println("add 4 ");
 				}
 				
 			}
-			while (temp.size() > 0) {
-				Coord t = temp.remove();
-				vals.add(t);
-				findCakeStacks(t);
+			while (tempSt.size() > 0) {
+				Coord t = tempSt.pop();
+				valsSt.push(t);
+				findCakeQueue(t);
 				//System.out.println(temp.size());
 				//System.out.println(" " + vals.size());
 			}
 		}
 		
-	}*/
+		
+	}
 	
-	public static Coord sideBySide(Coord c) {
-		int tRow = c.getRow();
-		int tCol = c.getCol();
-		ArrayDeque<Coord> tList = new ArrayDeque<Coord>();
-		Coord low = null;
-		boolean found = false;
-		
-		while (vals.size() > 0 && found == false) {
-			if ((Math.abs(vals.peek().getRow() - tRow) == 1 && vals.peek().getCol() - tCol == 0) || Math.abs(vals.peek().getCol()-tCol) == 1 && vals.peek().getRow()- tRow == 0) {
-				low = new Coord(vals.peek().getRow(),vals.peek().getCol(),vals.peek().getVal());
-				
-			} else {
-				Coord t = vals.remove();
-				tList.add(t);
-			}
+	public static boolean sideBySide(Coord c, Coord d) {
+		if ((Math.abs(c.getRow() - d.getRow()) == 1 && (c.getCol() - d.getCol()) == 0) || (Math.abs(c.getCol() - d.getCol()) == 1 && (c.getRow() - d.getRow()) == 0) ) {
+			return true;
 		}
-		
-		while (tList.size() > 0) {
-			Coord t = tList.remove();
-			vals.add(t);
-		}
-		
-		return low;
+		return false;
 		
 	}
 	
@@ -382,6 +436,46 @@ public class p1 {
 			Coord c = list2.remove();
 			//System.out.println("running2");
 			vals.add(c);
+		}
+	
+		//System.out.println(found);
+		
+		
+		return found;
+		
+		
+	}
+	
+	public static boolean existsAlreadyStack(int row, int col) {
+		Stack<Coord> list = new Stack<Coord>();
+		Stack<Coord> list2 = new Stack<Coord>();
+		boolean found = false;
+		//System.out.println(temp.size());
+		while (tempSt.size() > 0 && found == false) {
+			//System.out.println("running");
+			if (tempSt.peek().getRow() == row && tempSt.peek().getCol() == col && tempSt.peek().getVal() == lines[row][col]) {
+				found = true;
+			}
+			Coord t = tempSt.pop();
+			list.add(t);
+			//System.out.println("list" + list.size());
+		}
+		while(valsSt.size() > 0 && found == false) {
+			if (valsSt.peek().getRow() == row && valsSt.peek().getCol() == col && valsSt.peek().getVal() == lines[row][col]) {
+				found = true;
+			}
+			Coord t = valsSt.pop();
+			list2.add(t);
+		}
+		while (list.size() > 0) {
+			Coord c = list.pop();
+			//System.out.println("running2");
+			tempSt.push(c);
+		}
+		while (list2.size() > 0) {
+			Coord c = list2.pop();
+			//System.out.println("running2");
+			valsSt.push(c);
 		}
 	
 		//System.out.println(found);
