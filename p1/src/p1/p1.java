@@ -32,10 +32,11 @@ public class p1 {
 	private static Coord Cake;
 	private static int amtDoors;
 	private static boolean pathFin; 
-	
+	private static int visited;
 	public static void main(String[] args) {
 		Scanner scanner;
 		outcoord = false;
+		visited = 0;
 			while (true) {
 			Scanner sa = new Scanner(System.in);
 			String li = sa.nextLine();
@@ -285,7 +286,7 @@ public class p1 {
 				//System.out.println(" IS " + Cake.getRow());
 			if (c.getRow() == Cake.getRow() && c.getCol() == Cake.getCol() && c.getVal() == "C".charAt(0) && sideBySide(curr,c)) {
 				optPath.add(c);
-
+				
 				pathFin = true;
 			} else if (((Math.abs(c.getRow()-Cake.getRow()) < Math.abs(curr.getRow()-Cake.getRow())) ||(Math.abs(c.getCol()-Cake.getCol()) < Math.abs(curr.getCol()-Cake.getCol()))) && sideBySide(curr, c) ) {
 				path.add(c);
@@ -293,7 +294,9 @@ public class p1 {
 				System.out.println(" WALKING TO KIRBS " + c.getRow() + " " + c.getCol());
 				if (vals.size() >= 2) {
 					//System.out.println(vals.remove().getRow());
+					visited =0;
 					makePath(c,vals.remove());
+					
 					//System.out.println("Vals: " + vals.size());
 				}
 				
@@ -301,8 +304,21 @@ public class p1 {
 				if (vals.size() >= 1) {
 					//System.out.println("Fail");
 					//System.out.println("Vals: " + vals.size());
-					vals.add(c);
-					makePath(curr,vals.remove());
+					
+					if(visited == vals.size()) {
+						if (sideBySide(curr,c) == true) {
+							path.add(c);
+							System.out.println("No good path found");
+							optPath.add(c);
+							visited = 0;
+							makePath(c,vals.remove());
+						}
+					} else {
+						visited++;
+						vals.add(c);
+						makePath(curr,vals.remove());
+					}
+					
 				}
 			}
 		} else {
@@ -315,6 +331,7 @@ public class p1 {
 				//System.out.println(vals.size() + "Kib size " + kirbyLoc.size());
 				optPath.add(c);
 				tRooms++;
+				visited = 0;
 				makePath(kirbyLoc.get(tRooms),vals.remove());
 			}else if (((Math.abs(c.getRow()-doors.get(tRooms).getRow()) < Math.abs(curr.getRow()-doors.get(tRooms).getRow()) && sideBySide(curr,c) == true) || (Math.abs(c.getCol()-doors.get(tRooms).getCol() ) < Math.abs(curr.getCol()-doors.get(tRooms).getCol()) && sideBySide(curr,c) == true)) &&  c.getVal() != "!".charAt(0)  ) {
 					path.add(c);
@@ -323,6 +340,7 @@ public class p1 {
 						//System.out.println(vals.remove().getRow());
 					//	System.out.println("MAKING PATH");
 						//System.out.println(vals.peek().getRow() + " " + vals.peek().getCol() +" "+  vals.peek().getVal());
+						visited = 0;
 						optPath.add(c);
 						makePath(c,vals.remove());	
 						//System.out.println("Vals: " + vals.size());
@@ -331,8 +349,21 @@ public class p1 {
 				if (vals.size() >= 1) {
 					//System.out.println("Fail");
 				//	System.out.println("Vals: " + vals.size());
-					vals.add(c);
-					makePath(curr,vals.remove());
+				
+					if(visited == vals.size()) {
+						if (sideBySide(curr,c) == true) {
+							path.add(c);
+							System.out.println("No good path found");
+							optPath.add(c);
+							visited = 0;
+							makePath(c,vals.remove());
+						}
+					} else {
+						visited++;
+						vals.add(c);
+						makePath(curr,vals.remove());
+					}
+					
 				}
 			}
 		}
